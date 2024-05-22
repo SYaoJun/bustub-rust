@@ -97,23 +97,25 @@ impl Database {
             }
             return Ok(v);
         }
-        // 逻辑计划做了什么事情哟？
+        // 逻辑计划做了什么事情哟？ 逻辑计划是枚举类型
 
         let logical_plan = self.create_logical_plan(sql)?;
         println!(
-            "Logical Plan: \n{}",
+            "========Logical Plan: \n{}",
             pretty_format_logical_plan(&logical_plan)
         );
         // 直接就到优化器了呀
         let optimized_logical_plan = LogicalOptimizer::new().optimize(&logical_plan)?;
 
+        // 逻辑计划 -> 物理计划
         // logical plan -> physical plan
         let physical_plan = PhysicalPlanner::new().create_physical_plan(optimized_logical_plan);
         println!(
-            "Physical Plan: \n{}",
+            "=======Physical Plan: \n{}",
             pretty_format_physical_plan(&physical_plan)
         );
-        // 执行器
+        // TODO: 没有开启事务
+        // 执行器, 通过系统表创建执行器
         let execution_ctx = ExecutionContext::new(&mut self.catalog);
         let mut execution_engine = ExecutionEngine {
             context: execution_ctx,
@@ -132,12 +134,15 @@ impl Database {
                 "only support one sql statement".to_string(),
             ));
         }
+        // 什么时候这个statement的len()会返回大于1呢？
+        // 两条SQL语句放在一起解析就会。简单理解就是多个分号。"SELECT * FROM users; INSERT INTO users (id, name) VALUES (1, 'Alice');";
         let stmt = &stmts[0];
         let mut planner = LogicalPlanner {
             context: PlannerContext {
                 catalog: &self.catalog,
             },
         };
+        // 把抽象语法树转换为逻辑计划
         // ast -> logical plan
         planner.plan(&stmt)
     }

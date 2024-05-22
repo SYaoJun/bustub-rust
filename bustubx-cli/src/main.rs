@@ -25,7 +25,7 @@ fn main() -> Result<()> {
                             println!("{}", pretty_format_tuples(&tuples))
                         }
                     }
-                    Err(e) => println!("{}", e),
+                    Err(e) => println!("{:?}", e),
                 }
             }
             Err(ReadlineError::Interrupted) => {

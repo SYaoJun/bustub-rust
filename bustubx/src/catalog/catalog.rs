@@ -314,7 +314,7 @@ mod tests {
         let _ = remove_file(db_path);
 
         let disk_manager = DiskManager::try_new(&db_path).unwrap();
-        let buffer_pool_manager = BufferPoolManager::new(1000, Arc::new(disk_manager));
+        let buffer_pool_manager = BufferPoolManager::new(1000, Arc::new(disk_manager),2);
         let mut catalog = super::Catalog::new(buffer_pool_manager);
 
         let table_name = "test_table1".to_string();

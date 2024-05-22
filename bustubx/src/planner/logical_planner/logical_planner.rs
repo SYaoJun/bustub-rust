@@ -14,22 +14,27 @@ pub struct LogicalPlanner<'a> {
 impl<'a> LogicalPlanner<'a> {
     pub fn plan(&mut self, stmt: &sqlparser::ast::Statement) -> BustubxResult<LogicalPlan> {
         match stmt {
+            // 1. 创表
             sqlparser::ast::Statement::CreateTable { name, columns, .. } => {
                 self.plan_create_table(name, columns)
             }
+            // 2. 创建索引
             sqlparser::ast::Statement::CreateIndex {
                 name,
                 table_name,
                 columns,
                 ..
             } => self.plan_create_index(name, table_name, columns),
+            // 3. 查询
             sqlparser::ast::Statement::Query(query) => self.plan_query(query),
+            // 4. 插入数据
             sqlparser::ast::Statement::Insert {
                 table_name,
                 columns,
                 source,
                 ..
             } => self.plan_insert(table_name, columns, source),
+            // 5. 剩余的没实现
             _ => unimplemented!(),
         }
     }

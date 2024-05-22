@@ -1,3 +1,5 @@
+use std::fmt::format;
+use sqlparser::test_utils::table;
 use crate::common::{ScalarValue, TableReference};
 use crate::expression::{BinaryExpr, ColumnExpr, Expr, Literal};
 use crate::planner::LogicalPlanner;
@@ -48,6 +50,12 @@ impl LogicalPlanner<'_> {
                     "sqlparser expr CompoundIdentifier has more than 4 identifiers: {:?}",
                     idents
                 ))),
+            },
+            sqlparser::ast::Expr::Function(t)=>{
+                // select hello('world');
+// function_name = hello, args = [Unnamed(Expr(Value(SingleQuotedString("world"))))], string = "hello('world')"
+                println!("function_name = {}, args = {:?}, string = {:?}", t.name, t.args, t.to_string());
+                Err(BustubxError::NotSupport(format!("x")))
             },
             // 这里判断新增的系统函数
             _ => Err(BustubxError::NotSupport(format!(

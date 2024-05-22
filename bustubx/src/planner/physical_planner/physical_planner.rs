@@ -32,6 +32,7 @@ impl PhysicalPlanner {
 }
 
 pub fn build_plan(logical_plan: Arc<LogicalPlan>) -> PhysicalPlan {
+    // select走的哪个逻辑呀？
     let plan = match logical_plan.as_ref() {
         LogicalPlan::CreateTable(CreateTable { name, columns }) => PhysicalPlan::CreateTable(
             PhysicalCreateTable::new(name.clone(), Schema::new(columns.clone())),
@@ -83,6 +84,7 @@ pub fn build_plan(logical_plan: Arc<LogicalPlan>) -> PhysicalPlan {
                 Arc::new(input_physical_plan),
             ))
         }
+        // select * from table; 先走project 然后走seq_scan
         LogicalPlan::TableScan(TableScan {
             table_ref,
             table_schema,
